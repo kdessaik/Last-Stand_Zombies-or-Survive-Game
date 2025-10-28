@@ -1,51 +1,42 @@
-using UnityEngine;
-using UnityEngine.AI; // Needed for pathfinding
+﻿using UnityEngine;
 
-public class ZombieAI : MonoBehaviour
+public class ZombieMovement : MonoBehaviour
 {
-    public Transform player;         // Assign your player here
-    public float attackRange = 2f;   // How close before attacking
-    public float attackCooldown = 1.5f; // Time between attacks
-    public int damage = 10;          // Damage dealt to player
-
-    private NavMeshAgent agent;      // Handles movement
-    private Animator animator;       // Controls walking/attack animations
-    private float lastAttackTime;
+    public float speed = 0.5f;            // Speed of zombie
+    private Transform player;           // Reference to player
 
     void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
-        animator = GetComponent<Animator>();
+        // Find the player in the scene using the Player tag
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObj != null)
+        {
+            player = playerObj.transform;
+        }
+        else
+        {
+            Debug.LogError("No player found! Please assign the Player tag to your player object.");
+        }
     }
 
     void Update()
     {
         if (player == null) return;
 
-        // Move towards player
-        agent.SetDestination(player.position);
+        // Move towards player position
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            player.position,
+            speed * Time.deltaTime
+        );
 
-        float distance = Vector3.Distance(transform.position, player.position);
-
-        if (distance <= attackRange)
+        // Rotate to face the player
+        Vector3 direction = player.position - transform.position;
+        direction.y = 0; // keep rotation horizontal
+        if (direction.magnitude > 0.1f)
         {
-            // Stop moving and attack
-            agent.isStopped = true;
-            animator.SetBool("isWalking", false);
-
-            if (Time.time > lastAttackTime + attackCooldown)
-            {
-                animator.SetTrigger("Attack"); // Play attack animation
-                lastAttackTime = Time.time;
-
-                
-            }
-        }
-        else
-        {
-            // Keep walking
-            agent.isStopped = false;
-            animator.SetBool("isWalking", true);
+            transform.rotation = Quaternion.LookRotation(direction);
         }
     }
 }
