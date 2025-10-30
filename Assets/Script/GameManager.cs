@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
         // Initialize attack countdown at start
         attacksRemaining = maxAttacks;
         UIManager.Instance.UpdateAttacks(attacksRemaining, maxAttacks);
+
     }
 
     public void RestartGame()
