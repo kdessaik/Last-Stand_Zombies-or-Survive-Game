@@ -18,6 +18,12 @@ public class UIManager : MonoBehaviour
     public GameObject winPanel;      // assign WinPanel (inactive by default)
     public GameObject gameOverPanel; // assign GameOverPanel (inactive by default)
 
+    [Header("Audio Clips")]
+    public AudioClip winClip;        // Assign Win sound in Inspector
+    public AudioClip loseClip;       // Assign Lose sound in Inspector
+
+    private AudioSource audioSource;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -29,8 +35,12 @@ public class UIManager : MonoBehaviour
         // Hide panels at the start
         if (winPanel != null) winPanel.SetActive(false);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
+
+        // Setup AudioSource
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
     }
-    
+
     // 🩸 Updates player's health bar (0 to 1)
     public void UpdateHealth(float normalized)
     {
@@ -45,29 +55,37 @@ public class UIManager : MonoBehaviour
             killsText.text = $"Zombies Killed: {current}/{max}";
     }
 
-    // 💀 Updates attack counter (how many times player got hit)
+    // 💀 Updates attack counter (health remaining)
     public void UpdateAttacks(int current, int max)
     {
         if (attacksText != null)
-            attacksText.text = $"Health Remaining:\r\n {current}";
+            attacksText.text = $"Health Remaining:\n{current}";
     }
 
-    // 🏆 Shows Win Panel
+    // 🏆 Shows Win Panel + Plays Sound
     public void ShowWin()
     {
         if (winPanel != null)
         {
             winPanel.SetActive(true);
+
+            if (winClip != null)
+                audioSource.PlayOneShot(winClip);
+
             Time.timeScale = 0f; // Pause the game
         }
     }
 
-    // 💀 Shows Game Over Panel
+    // 💀 Shows Game Over Panel + Plays Sound
     public void ShowGameOver()
     {
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);
+
+            if (loseClip != null)
+                audioSource.PlayOneShot(loseClip);
+
             Time.timeScale = 0f; // Pause the game
         }
     }
